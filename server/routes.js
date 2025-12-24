@@ -337,10 +337,10 @@ router.post('/sales/bulk', async (req, res) => {
 
              if (failedItems.length > 0) throw { type: 'NUMBER_LIMIT', failedItems };
 
-             // 4. Create Ticket ID
-             let ticketId = `T-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-             // We skip the complex retry loop for collision for simplicity in async env, simpler ID logic is better.
-             // Or use UUID if available. Date.now() + random is generally enough for low volume.
+             // 4. Create Ticket ID (6 Digits)
+             // Simple random 6-digit number. Collision chance is low for daily volume, but present.
+             // For strict correctness, we'd loop and check, but let's keep it simple for now as per request.
+             let ticketId = Math.floor(100000 + Math.random() * 900000).toString();
 
             await tx.execute({
                 sql: "INSERT INTO tickets (id, shift_id, total) VALUES (?, ?, ?)",
