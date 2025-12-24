@@ -1,0 +1,28 @@
+# fly.toml app configuration file generated for pos-diaria-server
+
+app = 'pos-diaria-server' # You will likely need to change this name when launching
+primary_region = 'mia' # Miami is usually good for LatAm users
+
+[build]
+  # Since server is in a subdirectory, we need to tell Fly how to build it?
+  # Actually, Fly usually detects from root. But we want to deploy ONLY the server here.
+  # Best approach for monorepos in Fly is tricky.
+  # We will assume user runs "fly launch" INSIDE server/ directory.
+  
+[env]
+  PORT = "8080" # Fly default internal port
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[mounts]]
+  source = 'pos_data'
+  destination = '/data'
+
+[experimental]
+  auto_rollback = true
