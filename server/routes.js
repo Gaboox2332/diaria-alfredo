@@ -16,6 +16,12 @@ const getBusinessDate = () => {
     return formatTz(zonedDate, 'yyyy-MM-dd', { timeZone: TIMEZONE });
 };
 
+const getBusinessDateTime = () => {
+    const now = new Date();
+    const zonedDate = toZonedTime(now, TIMEZONE);
+    return formatTz(zonedDate, 'yyyy-MM-dd HH:mm:ss', { timeZone: TIMEZONE });
+};
+
 // --- HELPERS ---
 
 // Helper to execute and get first result (simulate .get())
@@ -206,7 +212,7 @@ router.post('/shifts/open', async (req, res) => {
             return res.status(400).json({ error: "Límite de turnos diarios (3) alcanzado." });
         }
 
-        const info = await dbRun("INSERT INTO shifts (type, date, status) VALUES (?, ?, 'ABIERTO')", [type, today]);
+        const info = await dbRun("INSERT INTO shifts (type, date, status, created_at) VALUES (?, ?, 'ABIERTO', ?)", [type, today, getBusinessDateTime()]);
         res.json({ success: true, id: info.lastInsertRowid });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -222,7 +228,7 @@ router.post('/shifts/close', async (req, res) => {
 
     try {
         // LibSQL requires proper args binding
-        await dbRun("UPDATE shifts SET status = ?, winning_number = ?, closed_at = CURRENT_TIMESTAMP WHERE id = ?", [status, winning_number || null, shift_id]);
+        await dbRun("UPDATE shifts SET status = ?, winning_number = ?, closed_at = ? WHERE id = ?", [status, winning_number || null, getBusinessDateTime(), shift_id]);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -353,15 +359,16 @@ router.post('/sales/bulk', async (req, res) => {
              let ticketId = Math.floor(100000 + Math.random() * 900000).toString();
 
             await tx.execute({
-                sql: "INSERT INTO tickets (id, shift_id, total) VALUES (?, ?, ?)",
-                args: [ticketId, shift_id, totalBatchAmount]
+                sql: "INSERT INTO tickets (id, shift_id, total, created_at) VALUES (?, ?, ?, ?)",
+                args: [ticketId, shift_id, totalBatchAmount, getBusinessDateTime()]
             });
 
             // 5. Insert Sales
+            const now = getBusinessDateTime();
             for (const item of items) {
                  await tx.execute({
-                     sql: "INSERT INTO sales (shift_id, ticket_id, number, amount, prize) VALUES (?, ?, ?, ?, ?)",
-                     args: [shift_id, ticketId, item.number, item.amount, item.amount * 80]
+                     sql: "INSERT INTO sales (shift_id, ticket_id, number, amount, prize, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                     args: [shift_id, ticketId, item.number, item.amount, item.amount * 80, now]
                  });
             }
 
