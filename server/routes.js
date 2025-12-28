@@ -5,6 +5,16 @@ const { format } = require('date-fns');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { authenticateToken, SECRET_KEY } = require('./middleware/auth');
+const { toZonedTime, format: formatTz } = require('date-fns-tz');
+
+const TIMEZONE = 'America/Tegucigalpa';
+
+// Helper to get current date in Honduras timezone
+const getBusinessDate = () => {
+    const now = new Date();
+    const zonedDate = toZonedTime(now, TIMEZONE);
+    return formatTz(zonedDate, 'yyyy-MM-dd', { timeZone: TIMEZONE });
+};
 
 // --- HELPERS ---
 
@@ -150,7 +160,7 @@ router.put('/config', async (req, res) => {
 // 2. SHIFTS
 router.get('/shifts/day-status', async (req, res) => {
     try {
-        const today = format(new Date(), 'yyyy-MM-dd');
+        const today = getBusinessDate();
         const shifts = await dbAll("SELECT type, status, id FROM shifts WHERE date = ?", [today]);
         
         const status = {
@@ -176,7 +186,7 @@ router.get('/shifts/current', async (req, res) => {
 
 router.post('/shifts/open', async (req, res) => {
     const { type } = req.body;
-    const today = format(new Date(), 'yyyy-MM-dd');
+    const today = getBusinessDate();
 
     try {
         // Check availability
