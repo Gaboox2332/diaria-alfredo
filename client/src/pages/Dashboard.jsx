@@ -7,8 +7,8 @@ import API_URL from '@/config/api'; // Added import
 // `http://${window.location.hostname}:3001/api` -> `${API_URL}`
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from 'lucide-react'; // Wait, Badge is a component, not icon. Using a div for now.
-import { DollarSign, Ticket, Award, Users, Lock, ShoppingCart, Moon, Sun, Settings, History } from 'lucide-react'; // Added History
+// Removed invalid Badge import from lucide-react
+import { DollarSign, Ticket, Award, Users, Lock, ShoppingCart, Moon, Sun, Settings, History } from 'lucide-react'; // Added History and Ticket
 import { cn } from '@/lib/utils';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
