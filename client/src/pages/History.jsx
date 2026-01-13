@@ -7,12 +7,17 @@ import { Search, Calendar, Users, DollarSign, Trophy } from 'lucide-react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import ShiftWinnersModal from '@/components/modals/ShiftWinnersModal';
 
 const History = () => {
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [historyList, setHistoryList] = useState([]);
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // Winners Modal
+  const [winnersModalOpen, setWinnersModalOpen] = useState(false);
+  const [selectedShiftForWinners, setSelectedShiftForWinners] = useState(null);
 
   useEffect(() => {
     fetchHistoryList();
@@ -43,6 +48,13 @@ const History = () => {
 
   return (
     <div className="h-full flex flex-col gap-6">
+       <ShiftWinnersModal 
+          isOpen={winnersModalOpen}
+          onClose={() => setWinnersModalOpen(false)}
+          shift={selectedShiftForWinners}
+          onUpdate={fetchDetails} // Refresh stats if payments happen
+       />
+
        <div className="flex items-center justify-between">
          <h1 className="text-3xl font-bold text-slate-800">Historial de Sorteos</h1>
          <div className="flex items-center gap-2 bg-white p-2 rounded border shadow-sm">
@@ -162,11 +174,21 @@ const History = () => {
                                      <p className="text-slate-500 mb-1">Total Vendido</p>
                                      <p className="font-bold text-lg">Lps. {shift.total_sold?.toLocaleString() || 0}</p>
                                   </div>
-                                  <div className="bg-slate-50 p-3 rounded border">
+                                  <div 
+                                     className="bg-slate-50 p-3 rounded border cursor-pointer hover:bg-slate-100 transition-colors"
+                                     onClick={() => {
+                                        if (shift.winner_count > 0) {
+                                            setSelectedShiftForWinners(shift);
+                                            setWinnersModalOpen(true);
+                                        }
+                                     }}
+                                  >
                                      <p className="text-slate-500 mb-1">Ganadores</p>
                                      <div className="flex items-center gap-2">
                                         <Users className="w-4 h-4 text-slate-400" />
-                                        <p className="font-bold text-lg">{shift.winner_count || 0}</p>
+                                        <p className="font-bold text-lg decoration-blue-500 underline decoration-dotted underline-offset-4">
+                                            {shift.winner_count || 0}
+                                        </p>
                                      </div>
                                   </div>
                                   <div className="bg-green-50 p-3 rounded border border-green-100">

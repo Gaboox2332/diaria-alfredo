@@ -235,6 +235,39 @@ router.post('/shifts/close', async (req, res) => {
     }
 });
 
+
+
+router.get('/shifts/:id/winners', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // 1. Get Shift Info
+        const shift = await dbGet("SELECT winning_number, status FROM shifts WHERE id = ?", [id]);
+        if (!shift) return res.status(404).json({ error: "Turno no encontrado" });
+        
+        if (shift.status !== 'FINALIZADO' || !shift.winning_number) {
+            return res.json([]); // No winners yet
+        }
+
+        // 2. Get Winning Sales joined with Tickets
+        const winners = await dbAll(`
+            SELECT 
+                t.id as ticket_id,
+                t.paid_at,
+                s.prize,
+                s.amount as bet_amount,
+                t.created_at
+            FROM sales s
+            JOIN tickets t ON s.ticket_id = t.id
+            WHERE s.shift_id = ? AND s.number = ?
+            ORDER BY t.created_at DESC
+        `, [id, shift.winning_number]);
+
+        res.json(winners);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 router.get('/shifts/:id/simulate-winner', async (req, res) => {
     const { id } = req.params;
     const { number } = req.query;
