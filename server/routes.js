@@ -568,4 +568,22 @@ router.get('/sales/usage', async (req, res) => {
     }
 });
 
+// Mark Ticket as Paid
+router.post('/tickets/:id/pay', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const ticket = await dbGet("SELECT * FROM tickets WHERE id = ?", [id]);
+        if (!ticket) return res.status(404).json({ error: "Ticket no encontrado" });
+        
+        if (ticket.paid_at) {
+            return res.status(400).json({ error: "El ticket ya fue pagado." });
+        }
+
+        await dbRun("UPDATE tickets SET paid_at = ? WHERE id = ?", [getBusinessDateTime(), id]);
+        res.json({ success: true, message: "Ticket marcado como pagado" });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 module.exports = router;

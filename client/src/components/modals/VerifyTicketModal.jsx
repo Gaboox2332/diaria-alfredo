@@ -148,9 +148,46 @@ const VerifyTicketModal = ({ isOpen, onClose }) => {
                   </table>
                </div>
                
-                <Button onClick={handleReset} variant="outline" className="w-full text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
-                  Verificar Otro Ticket
-                </Button>
+                <div className="flex gap-2">
+                   <Button onClick={handleReset} variant="outline" className="flex-1 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                     Verificar Otro
+                   </Button>
+                   
+                   {/* Pay Button */}
+                   {user && result.status === 'GANADOR' && !result.ticket.paid_at && (
+                       <Button 
+                         onClick={async () => {
+                             if (confirm("¿Marcar este ticket como PAGADO?")) {
+                                 setLoading(true);
+                                 try {
+                                     await axios.post(`${API_URL}/tickets/${result.ticket.id}/pay`);
+                                     // Refresh
+                                     const res = await axios.get(`${API_URL}/tickets/${result.ticket.id}/verify`);
+                                     setResult(res.data);
+                                     alert("Ticket pagado correctamente");
+                                 } catch (e) {
+                                     alert(e.response?.data?.error || "Error");
+                                 } finally {
+                                     setLoading(false);
+                                 }
+                             }
+                         }}
+                         className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold"
+                       >
+                          <CheckCircle className="w-4 h-4 mr-2" /> PAGAR
+                       </Button>
+                   )}
+                </div>
+
+                {/* Paid Status Banner */}
+                {result.ticket.paid_at && (
+                    <div className="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-2 rounded text-center">
+                        <p className="text-red-800 dark:text-red-300 font-bold text-lg">PAGADO</p>
+                        <p className="text-xs text-red-600 dark:text-red-400">
+                            {format(new Date(result.ticket.paid_at), 'dd/MM/yyyy HH:mm', { locale: es })}
+                        </p>
+                    </div>
+                )}
 
                 {/* Delete/Annul Button - Only for Admins/Logged Users */}
                 {user && result.shift.status === 'ABIERTO' && (

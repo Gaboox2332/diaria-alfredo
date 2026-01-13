@@ -81,6 +81,11 @@ async function init() {
         await db.execute("ALTER TABLE shifts ADD COLUMN ticket_count INTEGER DEFAULT 0");
     } catch(e) {}
 
+    // Migration for tickets paid_at
+    try {
+        await db.execute("ALTER TABLE tickets ADD COLUMN paid_at DATETIME");
+    } catch(e) {}
+
     // Backfill Migration (Optimized for Turso/LibSQL)
     try {
         const rs = await db.execute("SELECT count(*) as c FROM shift_counters");
