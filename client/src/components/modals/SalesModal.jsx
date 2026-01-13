@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import API_URL from '@/config/api';
 import { Button } from '@/components/ui/button';
 import { createPortal } from 'react-dom';
@@ -22,6 +22,18 @@ const SalesModal = ({ isOpen, onClose, onSaleComplete, shiftId, shiftType }) => 
   const [limitItem, setLimitItem] = useState(null); 
   const [usage, setUsage] = useState({});
   const [limitPerNumber, setLimitPerNumber] = useState(0);
+  
+  // Quick Sell State
+  const [quickNumber, setQuickNumber] = useState('');
+  const [quickAmount, setQuickAmount] = useState('');
+  const numInputRef = useRef(null);
+  const amtInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => numInputRef.current?.focus(), 100);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
       if (isOpen && shiftId) {
@@ -155,6 +167,42 @@ const SalesModal = ({ isOpen, onClose, onSaleComplete, shiftId, shiftType }) => 
     }
   };
 
+  const handleQuickAdd = (e) => {
+    e.preventDefault();
+    const num = quickNumber.padStart(2, '0');
+    const amt = parseInt(quickAmount);
+
+    if (num.length !== 2 || isNaN(amt) || amt <= 0) {
+      setError('Número o monto inválido');
+      return;
+    }
+
+    if (amt % 5 !== 0) {
+      setError('El monto debe ser múltiplo de 5');
+      return;
+    }
+
+    // Check availability (optional UI-side check, backend will catch it anyway)
+    const sold = usage[num] || 0;
+    if (limitPerNumber > 0 && (sold + amt > limitPerNumber)) {
+        setError(`Límite excedido para el ${num}. Disponible: ${limitPerNumber - sold}`);
+        return;
+    }
+
+    handleAddToCart({ number: num, amount: amt });
+    setQuickNumber('');
+    setQuickAmount('');
+    setError('');
+    numInputRef.current?.focus();
+  };
+
+  const handleNumKeyDown = (e) => {
+    if (e.key === 'Enter' && quickNumber.length > 0) {
+      e.preventDefault();
+      amtInputRef.current?.focus();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-100 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-300">
        <LimitResolutionModal 
@@ -171,8 +219,44 @@ const SalesModal = ({ isOpen, onClose, onSaleComplete, shiftId, shiftType }) => 
        </div>
 
        <div className="flex flex-1 overflow-hidden">
-          {/* Left: Grid */}
-          <div className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 overflow-y-auto">
+          {/* Left: Grid & Quick Sell */}
+          <div className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 overflow-y-auto flex flex-col gap-4">
+             {/* Quick Sell Bar */}
+             <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border dark:border-slate-800 shadow-sm flex items-end gap-4">
+                <div className="flex-1 space-y-1.5">
+                   <label className="text-xs font-bold text-slate-500 uppercase">Número</label>
+                   <input 
+                      ref={numInputRef}
+                      type="text"
+                      placeholder="00"
+                      maxLength={2}
+                      value={quickNumber}
+                      onChange={(e) => setQuickNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                      onKeyDown={handleNumKeyDown}
+                      className="w-full h-12 text-2xl font-black text-center border-2 rounded-md focus:border-blue-500 focus:ring-0 bg-transparent dark:text-white dark:border-slate-700"
+                   />
+                </div>
+                <div className="flex-1 space-y-1.5">
+                   <label className="text-xs font-bold text-slate-500 uppercase">Monto (Lps)</label>
+                   <input 
+                      ref={amtInputRef}
+                      type="text"
+                      placeholder="Monto"
+                      value={quickAmount}
+                      onChange={(e) => setQuickAmount(e.target.value.replace(/[^0-9]/g, ''))}
+                      onKeyDown={(e) => e.key === 'Enter' && handleQuickAdd(e)}
+                      className="w-full h-12 text-2xl font-black text-center border-2 rounded-md focus:border-blue-500 focus:ring-0 bg-transparent dark:text-white dark:border-slate-700"
+                   />
+                </div>
+                <Button 
+                   onClick={handleQuickAdd}
+                   disabled={!quickNumber || !quickAmount}
+                   className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                >
+                   AGREGAR
+                </Button>
+             </div>
+
              <SalesGrid 
                 onAddToCart={handleAddToCart} 
                 itemsInCart={cart} 
