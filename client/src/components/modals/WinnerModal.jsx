@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import axios from 'axios';
+import API_URL from '@/config/api';
 
 const WinnerModal = ({ shiftId, isOpen, onClose, onSuccess }) => {
   const [number, setNumber] = useState('');
@@ -20,7 +21,7 @@ const WinnerModal = ({ shiftId, isOpen, onClose, onSuccess }) => {
     setLoading(true);
     setError('');
     try {
-      await axios.put(`http://localhost:3001/api/shifts/${shiftId}/winner`, { number });
+      await axios.put(`${API_URL}/shifts/${shiftId}/winner`, { number });
       onSuccess();
       onClose();
     } catch (err) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '@/config/api';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,7 @@ const Config = () => {
 
   const loadConfig = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/config');
+      const res = await axios.get(`${API_URL}/config`);
       setConfig(res.data);
     } catch (err) {
       console.error(err);
@@ -25,7 +26,7 @@ const Config = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await axios.put('http://localhost:3001/api/config', config);
+      await axios.put(`${API_URL}/config`, config);
       alert('Configuración guardada');
     } catch (err) {
       alert('Error al guardar');
