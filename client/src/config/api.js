@@ -4,7 +4,7 @@
 const getBaseUrl = () => {
     // If a specific env var is set (Production in Vercel), use it
     if (import.meta.env.VITE_API_URL) {
-        return import.meta.env.VITE_API_URL;
+        return import.meta.env.VITE_API_URL.replace(/\/$/, "");
     }
 
     // Fallback for Local Network Development (allows 192.168.x.x access)
