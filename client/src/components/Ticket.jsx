@@ -6,7 +6,7 @@ const Ticket = ({ sales, total, ticketId, shiftType }) => {
     <div className="hidden print:block text-black text-xs w-full max-w-[80mm] font-mono" style={{ fontFamily: '"Courier New", Courier, monospace' }}>
       {/* Header */}
       <div className="text-center mb-2">
-        <h2 className="text-2xl font-black uppercase tracking-wider mb-1">CHANGARRO'S</h2>
+        <h2 className="text-2xl font-black uppercase tracking-wider mb-1">Santiago Perfumes</h2>
         <p className="text-[10px] uppercase border-b border-black border-dashed pb-2 mb-2">
           La Diaria - Sorteo {shiftType || 'DIARIO'}
         </p>
@@ -43,9 +43,6 @@ const Ticket = ({ sales, total, ticketId, shiftType }) => {
          <div className="flex justify-between text-xl font-black">
             <span>TOTAL:</span>
             <span>L {total}</span>
-         </div>
-         <div className="text-right text-[10px] mt-1">
-            {sales.length} JUGADAS
          </div>
       </div>
       
