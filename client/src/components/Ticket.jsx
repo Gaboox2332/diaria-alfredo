@@ -6,7 +6,7 @@ const Ticket = ({ sales, total, ticketId, shiftType }) => {
     <div className="hidden print:block text-black text-xs w-full max-w-[80mm] font-mono" style={{ fontFamily: '"Courier New", Courier, monospace' }}>
       {/* Header */}
       <div className="text-center mb-2">
-        <h2 className="text-2xl font-black uppercase tracking-wider mb-1">Santiago Perfumes</h2>
+        <h2 className="text-2xl font-bold uppercase tracking-widest mb-1 italic" style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.15em' }}>Santiago Perfumes</h2>
         <p className="text-[10px] uppercase border-b border-black border-dashed pb-2 mb-2">
           La Diaria - Sorteo {shiftType || 'DIARIO'}
         </p>
