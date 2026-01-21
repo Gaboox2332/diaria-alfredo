@@ -13,7 +13,7 @@ const Ticket = ({ sales, total, ticketId, shiftType }) => {
         </div>
         
         <div className="flex justify-center text-[10px] mb-1">
-          <span className="text-sm font-black block my-1">Sorteo {shiftType || 'DIARIO'}</span>
+          <span className="text-sm text-center font-black block my-1">Sorteo {shiftType || 'DIARIO'}</span><br/>
           <span>FECHA: {format(new Date(), 'dd/MM/yy')}</span><br/>
           <span> HORA: {format(new Date(), 'HH:mm')}</span>
         </div>
