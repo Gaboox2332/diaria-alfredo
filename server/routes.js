@@ -494,9 +494,35 @@ router.delete('/tickets/:id', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: "No se puede anular un ticket de un turno cerrado." });
         }
 
+        // Get all sales for this ticket to update counters
+        const sales = await dbAll("SELECT * FROM sales WHERE ticket_id = ?", [id]);
+
         // Transaction for delete
         const tx = await db.transaction('write');
         try {
+             // Decrement shift_counters for each sale
+             for (const sale of sales) {
+                 await tx.execute({
+                     sql: `UPDATE shift_counters 
+                           SET amount = amount - ?, count = count - 1 
+                           WHERE shift_id = ? AND number = ?`,
+                     args: [sale.amount, ticket.shift_id, sale.number]
+                 });
+                 
+                 // Optionally: remove counter if amount reaches 0
+                 await tx.execute({
+                     sql: `DELETE FROM shift_counters 
+                           WHERE shift_id = ? AND number = ? AND amount <= 0`,
+                     args: [ticket.shift_id, sale.number]
+                 });
+             }
+
+             // Update shift totals
+             await tx.execute({
+                 sql: "UPDATE shifts SET total_sales = total_sales - ?, ticket_count = ticket_count - 1 WHERE id = ?",
+                 args: [ticket.total, ticket.shift_id]
+             });
+
              await tx.execute({ sql: "DELETE FROM sales WHERE ticket_id = ?", args: [id] });
              await tx.execute({ sql: "DELETE FROM tickets WHERE id = ?", args: [id] });
              await tx.commit();
