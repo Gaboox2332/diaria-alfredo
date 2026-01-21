@@ -44,7 +44,7 @@ const Login = () => {
                              <PlayCircle className="w-8 h-8 text-white stroke-[1.5]" />
                         </div>
                         <h1 className="text-4xl text-slate-800 mb-2" style={{ fontFamily: '"Bodoni Moda", serif', fontWeight: '600', fontStyle: 'italic', letterSpacing: '-0.02em' }}>
-                            Santiago Perfumes
+                            Perfumeria Santiago
                         </h1>
                         <p className="text-slate-500 text-sm font-medium tracking-wide uppercase">Acceso Administrativo</p>
                     </div>
