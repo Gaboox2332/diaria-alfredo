@@ -9,11 +9,11 @@ const Ticket = ({ sales, total, ticketId, shiftType }) => {
         <h2 className="text-3xl mb-1" style={{ fontFamily: '"Bodoni Moda", "Playfair Display", serif', fontWeight: '500', letterSpacing: '0.05em', fontStyle: 'italic' }}>PERFUMERIA SANTIAGO</h2>
         <div className="text-[10px] uppercase border-b border-black border-dashed pb-2 mb-2">
           La Diaria<br/>
-          <span className="text-sm font-black block my-1">Sorteo {shiftType || 'DIARIO'}</span>
           Whatssapp - 8909-9369
         </div>
         
         <div className="flex justify-center text-[10px] mb-1">
+          <span className="text-sm font-black block my-1">Sorteo {shiftType || 'DIARIO'}</span>
           <span>FECHA: {format(new Date(), 'dd/MM/yy')}</span><br/>
           <span> HORA: {format(new Date(), 'HH:mm')}</span>
         </div>
