@@ -95,7 +95,7 @@ router.post('/users', authenticateToken, async (req, res) => {
     try {
         const hash = bcrypt.hashSync(password, 10);
         const info = await dbRun("INSERT INTO users (username, password) VALUES (?, ?)", [username, hash]);
-        res.json({ success: true, id: info.lastInsertRowid });
+        res.json({ success: true, id: Number(info.lastInsertRowid) });
     } catch (e) {
         res.status(400).json({ error: "El usuario ya existe o error en base de datos." });
     }
@@ -213,7 +213,7 @@ router.post('/shifts/open', async (req, res) => {
         }
 
         const info = await dbRun("INSERT INTO shifts (type, date, status, created_at) VALUES (?, ?, 'ABIERTO', ?)", [type, today, getBusinessDateTime()]);
-        res.json({ success: true, id: info.lastInsertRowid });
+        res.json({ success: true, id: Number(info.lastInsertRowid) });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
